@@ -1,6 +1,11 @@
 export const FILTER_COURSES = 'courses/FILTER';
 
-export function filterCourses(searchText: string) {
+export interface IFilterAction {
+  type: string, 
+  searchText: string
+}
+
+export function filterCourses(searchText: string) : IFilterAction {
     return {
         type: FILTER_COURSES,
         searchText

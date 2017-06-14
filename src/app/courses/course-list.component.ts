@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CourseService } from './course.service';
 import { Course } from './course';
 import { FilterTextComponent } from '../blocks/filter-text';
-import { store, filterCourses } from '../store';
+import { filterCourses, IAppState } from '../store';
+import {NgRedux, select} from 'ng2-redux';
+import {Observable} from 'rxjs/Observable';
+import {CourseActions} from './course.actions';
 
 @Component({
   selector: 'app-course-list',
@@ -10,28 +13,20 @@ import { store, filterCourses } from '../store';
   styleUrls: ['./course-list.component.css']
 })
 export class CourseListComponent implements OnInit {
-  filteredCourses = [];
+  @select('filteredCourses') filteredCourses$: Observable<Course>;
 
-  constructor(private _courseService: CourseService) { }
-
+  constructor(    
+    private ngRedux: NgRedux<IAppState>, 
+    private courseActions: CourseActions
+    ) {}
   
   // dispatches new event whenever filter search text is changed
   filterChanged(searchText: string) {
     console.log('user searched: ', searchText);
-    store.dispatch(filterCourses(searchText));
+    this.courseActions.filterCourses(searchText);
   }
-
-  // this function receives observations from store after reducer applied
-  updateFromState() {
-    const  allState  = store.getState();
-    this.filteredCourses = allState.filteredCourses; 
-  }
-
   ngOnInit() {
-    this.updateFromState();  //establish initial state
-    store.subscribe( () => {
-      this.updateFromState();  //process observation from store after reducer function has been applied. 
-    })
-  //  componentHandler.upgradeDom();
+    this.courseActions.getCourses();
+    componentHandler.upgradeDom();
   }
 }
